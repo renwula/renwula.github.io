@@ -73,7 +73,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="数据仓库,">
 
 
 
@@ -84,18 +84,21 @@
 
 
 
-<meta name="description" content="一个学生物的程序猴">
-<meta name="keywords" content="数据">
+<meta name="description" content="三范式（3NF）： 第一范式（1NF）无重复的列。也叫属性不可分,像学生信息表里学生id,学生姓名，学院id，不能出现学院列，学院列又分为学院文、学院理。  第二范式（2NF）非主属性部分依赖于主关键字。学生信息表中的所有属性都依赖于学生id。  第三范式（3NF）属性不依赖于其它非主属性。学生信息表只能有学院的id(这个是其他主属性)，通过这个学院的id可以和学院的信息表关联，而不能把每个人的学">
+<meta name="keywords" content="数据仓库">
 <meta property="og:type" content="article">
 <meta property="og:title" content="互联网数仓基础入门-2-数仓方法论">
 <meta property="og:url" content="http://renwula.github.io/2019/01/07/互联网数仓基础入门-2-数仓方法论/index.html">
 <meta property="og:site_name" content="任乌拉">
-<meta property="og:description" content="一个学生物的程序猴">
+<meta property="og:description" content="三范式（3NF）： 第一范式（1NF）无重复的列。也叫属性不可分,像学生信息表里学生id,学生姓名，学院id，不能出现学院列，学院列又分为学院文、学院理。  第二范式（2NF）非主属性部分依赖于主关键字。学生信息表中的所有属性都依赖于学生id。  第三范式（3NF）属性不依赖于其它非主属性。学生信息表只能有学院的id(这个是其他主属性)，通过这个学院的id可以和学院的信息表关联，而不能把每个人的学">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-06T13:13:31.142Z">
+<meta property="og:image" content="http://renwula.github.io/images/Inmon模型.png">
+<meta property="og:image" content="http://renwula.github.io/images/kimball模型.png">
+<meta property="og:updated_time" content="2019-01-06T13:47:00.963Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="互联网数仓基础入门-2-数仓方法论">
-<meta name="twitter:description" content="一个学生物的程序猴">
+<meta name="twitter:description" content="三范式（3NF）： 第一范式（1NF）无重复的列。也叫属性不可分,像学生信息表里学生id,学生姓名，学院id，不能出现学院列，学院列又分为学院文、学院理。  第二范式（2NF）非主属性部分依赖于主关键字。学生信息表中的所有属性都依赖于学生id。  第三范式（3NF）属性不依赖于其它非主属性。学生信息表只能有学院的id(这个是其他主属性)，通过这个学院的id可以和学院的信息表关联，而不能把每个人的学">
+<meta name="twitter:image" content="http://renwula.github.io/images/Inmon模型.png">
 
 
 
@@ -318,6 +321,28 @@
           </span>
 
           
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/互联网数仓基础入门/" itemprop="url" rel="index">
+                    <span itemprop="name">互联网数仓基础入门</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -356,7 +381,36 @@
       
 
       
-        
+        <p>三范式（3NF）：</p>
+<pre><code>第一范式（1NF）无重复的列。也叫属性不可分,像学生信息表里学生id,学生姓名，学院id，不能出现学院列，学院列又分为学院文、学院理。
+
+第二范式（2NF）非主属性部分依赖于主关键字。学生信息表中的所有属性都依赖于学生id。
+
+第三范式（3NF）属性不依赖于其它非主属性。学生信息表只能有学院的id(这个是其他主属性)，通过这个学院的id可以和学院的信息表关联，而不能把每个人的学院的所有信息全加上.
+</code></pre><p>OLTP系统数据的主要用的建模方式就是三范式，从而在事务处理中解决数据的冗余和一致性问题。<br><strong>ER模型（Inmon模型）和维度模型（Kimball模型）</strong><br><img src="/images/Inmon模型.png" alt="Inmon模型"><br><img src="/images/kimball模型.png" alt="kimball模型"></p>
+<p><strong>Inmon 模型</strong></p>
+<p>Inmon就是数仓之父，他提出的建模方法是从全企业的高度设计一个3NF模型，但是数仓的3NF和OLTP中的3NF的区别在于，它是站在企业的角度面向主题的抽象，而不针对具体业务过程。</p>
+<p>他推崇自上而下的建模方式，即从数据源到数据仓库再到数据集市的（先有数据仓库再有数据市场）一种瀑布流开发方法。</p>
+<p> Inmon模型以数据源头为导向。首先，需要探索性地去获取尽量符合预期的数据，尝试将数据按照预期划分为不同的表需求。其次，明确数据的清洗规则后将各个任务通过ETL由Stage层转化到DW层，这里DW层通常涉及到较多的UDF开发，将数据抽象为实体-关系模型。接着，在完成DW的数据治理之后，可以将数据输出到数据集市中做基本的数据组合。最后，将数据集市中的数据输出到BI系统中去辅助具体业务。</p>
+<p>建模主要步骤：</p>
+<pre><code>1.高层模型：一个高度抽象的模型，描述主要的主题以及主题间的关系，用于描述企业的业务总体概况；
+
+2.中层模型：在高层模型的基础上，细化主题的数据项；
+
+3.物理模型：在中层模型的基础上，考虑物理存储，同时基于性能和平台特点进行物理属性的设计，也可能做一些表的合并、分区的设计等。
+</code></pre><p><strong>Kimball 模型</strong></p>
+<p>Kimball 模型推崇自底向上的设计模式，即从数据集市到数据仓库再到数据源(先有数据集市再有数据仓库)的一种敏捷开发方法。Kimball都是以最终任务为导向。首先，在得到数据后需要先做数据的探索，尝试将数据按照目标先拆分出不同的表需求。其次，在明确数据依赖后将各个任务再通过ETL由Stage层转化到DM层。这里DM层数据则由若干个事实表和维度表组成。接着，在完成DM层的事实表维度表拆分后，数据集市一方面可以直接向BI环节输出数据了，另一方面可以先DW层输出数据，方便后续的多维分析。</p>
+<p>Kimball典型的代表是星型模型与雪花模型，后面会在详细的聊一下。</p>
+<p>建模主要步骤：</p>
+<pre><code>1.选择业务过程，业务过程可能是交易的支付、下单等，也可能是当前用户余额等。
+
+2.选择粒度，粒度是维度的组合，类比：国家粒度、城市粒度。
+
+3.识别维表，通过选择的粒度从而设计好维表。
+
+4.选择事实，确定分析需要的指标。
+</code></pre><p>Inmon模型从数据本身出发构造模型，对数据规范的要求更高，设计性也要更好，在多变的互联网里是很难出结果的，但是Kimball模型从业务需求出发设计模式，更加适合互联网数仓。</p>
+
       
     </div>
     
@@ -370,6 +424,12 @@
     
 
     <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/数据仓库/" rel="tag"># 数据仓库</a>
+          
+        </div>
       
 
       

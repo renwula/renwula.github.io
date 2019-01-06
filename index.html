@@ -320,6 +320,28 @@
           </span>
 
           
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/互联网数仓基础入门/" itemprop="url" rel="index">
+                    <span itemprop="name">互联网数仓基础入门</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -360,8 +382,16 @@
       
         
           
-          
-          
+          三范式（3NF）：
+第一范式（1NF）无重复的列。也叫属性不可分,像学生信息表里学生id,学生姓名，学院id，不能出现学院列，学院列又分为学院文、学院理。
+
+第二范式（2NF）非主属性部分依赖于主关键字。学生信息表中的所有属性都依赖于学生id。
+
+第三范式（3NF）属性不依赖于其它非主属性。学生信息表只能有学院的id(这个是其他主属性)，通过这个学院的id可以和学院的信息表关联，而不能把每个人的学院的所有信息全加上.
+OLTP系统数据的主要用的建模方式就是三范式，从而在事务处理中解决数据的冗余和一致性问题。ER模型（Inmon模型）和维度模型（Kimball模型）
+Inmon 模型
+Inmon
+          ...
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/01/07/互联网数仓基础入门-2-数仓方法论/#more" rel="contents">
