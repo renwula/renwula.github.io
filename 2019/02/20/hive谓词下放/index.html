@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+
+   <canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;"></canvas> 
+   <script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+   <script type="text/javascript" src="/js/src/fireworks.js"></script>
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="hive,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="保留表(Preserved Row table)  在outer join中需要返回所有数据的表叫做保留表，也就是说在left outer join中，左表需要返回所有数据，则左表是保留表；right outer join中右表则是保留表；在full outer join中左表和右表都要返回所有数据，则左右表都是保留表。  Null Supplying table  在outer join中对于没">
+<meta name="keywords" content="hive">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hive谓词下放">
+<meta property="og:url" content="http://renwula.github.io/2019/02/20/hive谓词下放/index.html">
+<meta property="og:site_name" content="任乌拉">
+<meta property="og:description" content="保留表(Preserved Row table)  在outer join中需要返回所有数据的表叫做保留表，也就是说在left outer join中，左表需要返回所有数据，则左表是保留表；right outer join中右表则是保留表；在full outer join中左表和右表都要返回所有数据，则左右表都是保留表。  Null Supplying table  在outer join中对于没">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-02-19T13:28:54.693Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hive谓词下放">
+<meta name="twitter:description" content="保留表(Preserved Row table)  在outer join中需要返回所有数据的表叫做保留表，也就是说在left outer join中，左表需要返回所有数据，则左表是保留表；right outer join中右表则是保留表；在full outer join中左表和右表都要返回所有数据，则左右表都是保留表。  Null Supplying table  在outer join中对于没">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://renwula.github.io/2019/02/20/hive谓词下放/">
+
+
+
+
+
+  <title>hive谓词下放 | 任乌拉</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">任乌拉</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">数据搬运工</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-schedule">
+          <a href="/schedule/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-calendar"></i> <br>
+            
+            日程表
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://renwula.github.io/2019/02/20/hive谓词下放/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="乌拉乌拉儿">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/mycat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="任乌拉">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">hive谓词下放</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-20T04:04:33+08:00">
+                2019-02-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/hive调优/" itemprop="url" rel="index">
+                    <span itemprop="name">hive调优</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/02/20/hive谓词下放/" class="leancloud_visitors" data-flag-title="hive谓词下放">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>保留表(Preserved Row table)</p>
+<blockquote>
+<p>在outer join中需要返回所有数据的表叫做保留表，也就是说在left outer join中，左表需要返回所有数据，则左表是保留表；right outer join中右表则是保留表；在full outer join中左表和右表都要返回所有数据，则左右表都是保留表。</p>
+</blockquote>
+<p>Null Supplying table</p>
+<blockquote>
+<p>在outer join中对于没有匹配到的行需要用null来填充的表称为Null Supplying table。在left outer join中，左表的数据全返回，对于左表在右表中无法匹配的数据的相应列用null表示，则此时右表是Null Supplying table，相应的如果是right outer join的话，左表是Null Supplying table。但是在full outer join中左表和右表都是Null Supplying table，因为左表和右表都会用null来填充无法匹配的数据。</p>
+</blockquote>
+<p>此时你会发现full outer join就是个矛盾体，因为此时的左表和右表即使保留表又是Null Supplying table，这就导致在outer join中谓词下放时有一些问题。</p>
+<p>Join中的谓词</p>
+<blockquote>
+<p>Join中的谓词是指 Join On语句中的谓词。如：’R1 join R2 on R1.x = 5’ the predicate ‘R1.x = 5’是Join中的谓词</p>
+</blockquote>
+<p>Join之后的谓词</p>
+<blockquote>
+<p>where语句中的谓词称之为Join之后的谓词</p>
+</blockquote>
+<h4>谓词下放</h4>
+
+<blockquote>
+<p>谓词：谓词是一个属性或是一个表示“持有”或“不持有”的表达式，换句话说，也就是取值为 TRUE、FALSE 或 UNKNOWN 的表达式。谓词用于 WHERE 子句和 HAVING 子句的搜索条件中，还用于 FROM 子句的联接条件以及需要布尔值的其他构造中。</p>
+</blockquote>
+<p>对于outer join中的坑，主要是对谓词下放的规则不熟悉，导致理解的不够全面，造成一些坑。<br>谓词下放的规则有两个，分别为</p>
+<blockquote>
+<p>1.Join中谓词如果是保留表的，则不会下放。<br>2.Join之后的谓词如果是Null Supplying tables的，则不会下放。</p>
+</blockquote>
+<h4>栗子</h4>
+
+<p>创建表</p>
+<blockquote>
+<p>create table t1 (id int, name string) ROW FORMAT DELIMITED FIELDS TERMINATED BY “,”;<br>create table t2 (id int, name string) ROW FORMAT DELIMITED FIELDS TERMINATED BY “,”;</p>
+</blockquote>
+<p>t1里的数据如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1,a</span><br><span class="line">1,b</span><br><span class="line">2,a</span><br><span class="line">2,b</span><br><span class="line">3,a</span><br><span class="line">3,b</span><br><span class="line">4,b</span><br></pre></td></tr></table></figure></p>
+<p>t2里的数据如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1,aa</span><br><span class="line">4,dd</span><br></pre></td></tr></table></figure></p>
+<p>在执行例子之前，避免map join影响到各个例子的执行计划，先关闭map join，set hive.auto.convert.join=false;</p>
+<p></p><h4>demo1:</h4><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">select t1.*,t2.name as name_t2 </span><br><span class="line">from t1 </span><br><span class="line">left outer join t2 </span><br><span class="line">on (t1.id=t2.id) </span><br><span class="line">where t1.name=&apos;a&apos; and t2.name=&apos;aa&apos;;</span><br></pre></td></tr></table></figure><p></p>
+<blockquote>
+<p>此sql中，保留表为t1，Null Supplying table为t2，join中谓词在此sql中没有，where中的两个谓词都是join之后的谓词。<br>则根据谓词下放规则，t1.name=’a’是保留表的字段，则被下放，而t2.name=’aa’是Null Supplying table的，Null Supplying table不支持join之后的谓词下放。<br>那么此时的sql就等同于<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">select t.*,t2.name as name_t2 </span><br><span class="line"> from </span><br><span class="line"> (</span><br><span class="line"> 	select id, name from t1 where t1.name=&apos;a&apos;</span><br><span class="line"> ) as t left outer join t2 on</span><br><span class="line"> (t.id=t2.id) where t2.name=&apos;aa&apos;;</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<p>其结果为:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1 a aa</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>造成这样的结果是因为hive中outer join谓词下放的规则,sql中的t2.name=’aa’是join之后的谓词，不会被下放到t2中(t2是Null Supplying table)，而是对t1和t2 join的结果进行filter，filter的条件是t2.name=’aa’，于是就出现了1 a aa结果，因为其余数据的t2.name的值都为NULL</p><br> 首先sql中有两个join之后的谓词，分别为t1.name=’a’ and t2.name=’aa’，其中t1.name是保留表t1的，会谓词下放，在scan t1表时，对t1中的数据进行过滤，t2.name是t2的，t2不是保留表，谓词无法下放，而where又是在join之后执行的(Joins occur BEFORE WHERE CLAUSES)。看下sql的执行计划：<p></p><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">STAGE DEPENDENCIES:</span><br><span class="line">    Stage-1 is a root stage</span><br><span class="line">    Stage-0 depends on stages: Stage-1</span><br><span class="line">  STAGE PLANS:</span><br><span class="line">    Stage: Stage-1</span><br><span class="line">      Map Reduce</span><br><span class="line">        Map Operator Tree:</span><br><span class="line">            TableScan</span><br><span class="line">              alias: t1</span><br><span class="line">              Statistics: Num rows: 5 Data size: 28 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">              Filter Operator</span><br><span class="line">                predicate: (name = &apos;a&apos;) (type: boolean)</span><br><span class="line">                Statistics: Num rows: 2 Data size: 11 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">                Reduce Output Operator</span><br><span class="line">                  key expressions: id (type: int)</span><br><span class="line">                  sort order: +</span><br><span class="line">                  Map-reduce partition columns: id (type: int)</span><br><span class="line">                  Statistics: Num rows: 2 Data size: 11 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">            TableScan</span><br><span class="line">              alias: t2</span><br><span class="line">              Statistics: Num rows: 1 Data size: 10 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">              Reduce Output Operator</span><br><span class="line">                key expressions: id (type: int)</span><br><span class="line">                sort order: +</span><br><span class="line">                Map-reduce partition columns: id (type: int)</span><br><span class="line">                Statistics: Num rows: 1 Data size: 10 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">                value expressions: name (type: string)</span><br><span class="line">        Reduce Operator Tree:</span><br><span class="line">          Join Operator</span><br><span class="line">            condition map:</span><br><span class="line">                 Left Outer Join0 to 1</span><br><span class="line">            keys:</span><br><span class="line">              0 id (type: int)</span><br><span class="line">              1 id (type: int)</span><br><span class="line">            outputColumnNames: _col0, _col6</span><br><span class="line">            Statistics: Num rows: 2 Data size: 12 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">            Filter Operator</span><br><span class="line">              predicate: (_col6 = &apos;aa&apos;) (type: boolean)</span><br><span class="line">              Statistics: Num rows: 1 Data size: 6 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">              Select Operator</span><br><span class="line">                expressions: _col0 (type: int), &apos;a&apos; (type: string), &apos;aa&apos; (type: string)</span><br><span class="line">                outputColumnNames: _col0, _col1, _col2</span><br><span class="line">                Statistics: Num rows: 1 Data size: 6 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">                File Output Operator</span><br><span class="line">                  compressed: false</span><br><span class="line">                  Statistics: Num rows: 1 Data size: 6 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">                  table:</span><br><span class="line">                      input format: org.apache.hadoop.mapred.TextInputFormat</span><br><span class="line">                      output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat</span><br><span class="line">                      serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe</span><br><span class="line">    Stage: Stage-0</span><br><span class="line">      Fetch Operator</span><br><span class="line">        limit: -1</span><br><span class="line">        Processor Tree:</span><br><span class="line">          ListSink</span><br></pre></td></tr></table></figure><p></p>
+</blockquote>
+<p>从sql的执行计划上也可以看出，TableScan t1时使用了predicate: (name = ‘a’) (type: boolean)对数据进行过滤，(则进入mr的t1数据不是全表数据，而是过滤过的数据)。而where对应的filter operator是在join之后才执行的</p>
+<p></p><h4>demo2:</h4><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">select t1.*,t2.name as name_t2 </span><br><span class="line">from t1 </span><br><span class="line">left outer join t2 </span><br><span class="line">on (t1.id=t2.id and t2.name=&apos;aa&apos;) w</span><br><span class="line">here t1.name=&apos;a&apos;;</span><br></pre></td></tr></table></figure><p></p>
+<p>执行结果为:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1	a	aa</span><br><span class="line">2	a	NULL</span><br><span class="line">3	a	NULL</span><br></pre></td></tr></table></figure></p>
+<p>其中t2.name是join中谓词，t1.name是join之后谓词，根据规则join中谓词能下放到t2中，join之后的谓词能下放到t1中，则上面sql的意思是将t1中name为a的数据与t2中name为aa的数据进行join，t1和t2都会在table scan时进行数据过滤。sql的执行计划如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">STAGE DEPENDENCIES:</span><br><span class="line">   Stage-1 is a root stage</span><br><span class="line">   Stage-0 depends on stages: Stage-1</span><br><span class="line"> STAGE PLANS:</span><br><span class="line">   Stage: Stage-1</span><br><span class="line">     Map Reduce</span><br><span class="line">       Map Operator Tree:</span><br><span class="line">           TableScan</span><br><span class="line">             alias: t1</span><br><span class="line">             Statistics: Num rows: 5 Data size: 28 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">             Filter Operator</span><br><span class="line">               predicate: (name = &apos;a&apos;) (type: boolean)</span><br><span class="line">               Statistics: Num rows: 2 Data size: 11 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">               Reduce Output Operator</span><br><span class="line">                 key expressions: id (type: int)</span><br><span class="line">                 sort order: +</span><br><span class="line">                 Map-reduce partition columns: id (type: int)</span><br><span class="line">                 Statistics: Num rows: 2 Data size: 11 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">           TableScan</span><br><span class="line">             alias: t2</span><br><span class="line">             Statistics: Num rows: 1 Data size: 10 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">             Filter Operator</span><br><span class="line">               predicate: (name = &apos;aa&apos;) (type: boolean)</span><br><span class="line">               Statistics: Num rows: 1 Data size: 10 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">               Reduce Output Operator</span><br><span class="line">                 key expressions: id (type: int)</span><br><span class="line">                 sort order: +</span><br><span class="line">                 Map-reduce partition columns: id (type: int)</span><br><span class="line">                 Statistics: Num rows: 1 Data size: 10 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">                 value expressions: name (type: string)</span><br><span class="line">       Reduce Operator Tree:</span><br><span class="line">         Join Operator</span><br><span class="line">           condition map:</span><br><span class="line">                Left Outer Join0 to 1</span><br><span class="line">           keys:</span><br><span class="line">             0 id (type: int)</span><br><span class="line">             1 id (type: int)</span><br><span class="line">           outputColumnNames: _col0, _col6</span><br><span class="line">           Statistics: Num rows: 2 Data size: 12 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">           Select Operator</span><br><span class="line">             expressions: _col0 (type: int), &apos;a&apos; (type: string), _col6 (type: string)</span><br><span class="line">             outputColumnNames: _col0, _col1, _col2</span><br><span class="line">             Statistics: Num rows: 2 Data size: 12 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">             File Output Operator</span><br><span class="line">               compressed: false</span><br><span class="line">               Statistics: Num rows: 2 Data size: 12 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">               table:</span><br><span class="line">                   input format: org.apache.hadoop.mapred.TextInputFormat</span><br><span class="line">                   output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat</span><br><span class="line">                   serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe</span><br><span class="line">   Stage: Stage-0</span><br><span class="line">     Fetch Operator</span><br><span class="line">       limit: -1</span><br><span class="line">       Processor Tree:</span><br><span class="line">         ListSink</span><br></pre></td></tr></table></figure>
+<p>从执行计划上可以看出t1和t2的TableScan中都存在Filter Operator操作，对数据进行过滤。</p>
+<p></p><h4>demo3:</h4><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select t1.*,t2.name as name_t2 from t1 left outer join t2 on (t1.id=t2.id and t1.name=&apos;a&apos; ) where t2.name=&apos;aa&apos;;</span><br></pre></td></tr></table></figure><p></p>
+<p>此sql中有两个谓词，一个是join中谓词t1.name=’a’和join之后谓词t2.name=’aa’。<br>这里需要明白一点，join中谓词决定了进行join的数据，join之后谓词决定了最终要呈现的数据。也就是说join中谓词t1.name=’a’决定了t1表中name为a的数据才去和t2进行join，而join之后谓词t2.name=’aa’决定了最终的结果。<br>执行结果为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1 a aa</span><br></pre></td></tr></table></figure></p>
+<p>这里的结果随便和case 1的结果一样，但是执行的内部逻辑是不一样的，case3在执行where filter之前返回的数据是t1全表的数据，而case1在执行where filter之前返回的数据是t1中name为a的数据，因为case3中join中谓词t1.name=’a’并不能对t1进行下放，这里的语义是对t1进行全表扫描，只拿name为a的数据和t2进行join，id匹配成功则为t2.name的值，匹配不成功和name不为a的数据中t2.name的值都为NULL，join结束之后由where filter过滤t2.name=’aa’，因此就出现了上面的结果(因为没有匹配成功的和没有进行匹配的数据都是NULL，被过滤)。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">STAGE DEPENDENCIES:</span><br><span class="line">   Stage-1 is a root stage</span><br><span class="line">   Stage-0 depends on stages: Stage-1</span><br><span class="line">   STAGE PLANS:</span><br><span class="line">   Stage: Stage-1</span><br><span class="line">     Map Reduce</span><br><span class="line">       Map Operator Tree:</span><br><span class="line">           TableScan</span><br><span class="line">             alias: t1</span><br><span class="line">             Statistics: Num rows: 1 Data size: 28 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">             Reduce Output Operator</span><br><span class="line">               key expressions: id (type: int)</span><br><span class="line">               sort order: +</span><br><span class="line">               Map-reduce partition columns: id (type: int)</span><br><span class="line">               Statistics: Num rows: 1 Data size: 28 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">               value expressions: name (type: string)</span><br><span class="line">           TableScan</span><br><span class="line">             alias: t2</span><br><span class="line">             Statistics: Num rows: 1 Data size: 10 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">             Reduce Output Operator</span><br><span class="line">               key expressions: id (type: int)</span><br><span class="line">               sort order: +</span><br><span class="line">               Map-reduce partition columns: id (type: int)</span><br><span class="line">               Statistics: Num rows: 1 Data size: 10 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">               value expressions: name (type: string)</span><br><span class="line">       Reduce Operator Tree:</span><br><span class="line">         Join Operator</span><br><span class="line">           condition map:</span><br><span class="line">                Left Outer Join0 to 1</span><br><span class="line">           filter predicates:</span><br><span class="line">             0 &#123;(VALUE._col0 = &apos;a&apos;)&#125;</span><br><span class="line">             1</span><br><span class="line">           keys:</span><br><span class="line">             0 id (type: int)</span><br><span class="line">             1 id (type: int)</span><br><span class="line">           outputColumnNames: _col0, _col1, _col6</span><br><span class="line">           Statistics: Num rows: 1 Data size: 30 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">           Filter Operator</span><br><span class="line">             predicate: (_col6 = &apos;aa&apos;) (type: boolean)</span><br><span class="line">             Statistics: Num rows: 1 Data size: 30 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">             Select Operator</span><br><span class="line">               expressions: _col0 (type: int), _col1 (type: string), &apos;aa&apos; (type: string)</span><br><span class="line">               outputColumnNames: _col0, _col1, _col2</span><br><span class="line">               Statistics: Num rows: 1 Data size: 30 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">               File Output Operator</span><br><span class="line">                 compressed: false</span><br><span class="line">                 Statistics: Num rows: 1 Data size: 30 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">                 table:</span><br><span class="line">                     input format: org.apache.hadoop.mapred.TextInputFormat</span><br><span class="line">                     output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat</span><br><span class="line">                     serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe</span><br><span class="line">   Stage: Stage-0</span><br><span class="line">     Fetch Operator</span><br><span class="line">       limit: -1</span><br><span class="line">       Processor Tree:</span><br><span class="line">         ListSink</span><br></pre></td></tr></table></figure></p>
+<p>上面是demo3的执行计划，可以看出两个表在TableScan时都是全表扫描，没有进行filter，在join时有个filterfilter predicates，join结束之后又有个Filter Operator对join的结果进行过滤。</p>
+<p></p><h4>demo4:</h4><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select t1.*,t2.name as name_t2 from t1 left outer join t2 on (t1.id=t2.id and t1.name=&apos;a&apos; and t2.name=&apos;aa&apos;);</span><br></pre></td></tr></table></figure><p></p>
+<p>此sql中只有join中谓词，根据规则t1.name=’a’不能下放到t1中，而t2.name=’aa’能够下放到t2中，那就是说扫t1的全表数据，然后拿t1.name为a的数据去和t2中t2.name为aa的数据(t2在table scan时会过滤name为aa的数据)进行join，那么t1中name不为a的数据不和t2进行join，直接将t2.name置为NULL，而t1中name为a却没有和t2进行join成功的数据也为NULL，所以其结果如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1	b	NULL</span><br><span class="line">1	a	aa</span><br><span class="line">2	b	NULL</span><br><span class="line">2	a	NULL</span><br><span class="line">3	b	NULL</span><br><span class="line">3	a	NULL</span><br><span class="line">4	b	NULL</span><br></pre></td></tr></table></figure></p>
+<p> 这里需要说明下，t1是保留表，join之后要返回其表中所有的数据，因为在join之后没有where对其结果进行过滤，所以此处显示的是t1表的所有数据，上面的case之所以没有返回t1的所有数据是因为他们要么在table scan时进行了过滤要么就是在join之后通过where进行了过滤</p>
+<p> 为了验证下t1中只有那么为a的数据与t2进行了join，我对t2中的数据进行了修改，添加一条数据4,aa，其执行结果按照上面的逻辑应该不会发生变化，再次执行case4，看下返回的结果是否一致。其结果如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1	b	NULL</span><br><span class="line">1	a	aa</span><br><span class="line">2	b	NULL</span><br><span class="line">2	a	NULL</span><br><span class="line">3	b	NULL</span><br><span class="line">3	a	NULL</span><br><span class="line">4	b	NULL</span><br></pre></td></tr></table></figure></p>
+<p>与上面的结果一致。<br>此sql的执行计划如下:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">STAGE DEPENDENCIES:</span><br><span class="line">   Stage-1 is a root stage</span><br><span class="line">   Stage-0 depends on stages: Stage-1</span><br><span class="line"> STAGE PLANS:</span><br><span class="line">   Stage: Stage-1</span><br><span class="line">     Map Reduce</span><br><span class="line">       Map Operator Tree:</span><br><span class="line">           TableScan</span><br><span class="line">             alias: t1</span><br><span class="line">             Statistics: Num rows: 1 Data size: 28 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">             Reduce Output Operator</span><br><span class="line">               key expressions: id (type: int)</span><br><span class="line">               sort order: +</span><br><span class="line">               Map-reduce partition columns: id (type: int)</span><br><span class="line">               Statistics: Num rows: 1 Data size: 28 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">               value expressions: name (type: string)</span><br><span class="line">           TableScan</span><br><span class="line">             alias: t2</span><br><span class="line">             Statistics: Num rows: 1 Data size: 10 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">             Filter Operator</span><br><span class="line">               predicate: (name = &apos;aa&apos;) (type: boolean)</span><br><span class="line">               Statistics: Num rows: 1 Data size: 10 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">               Reduce Output Operator</span><br><span class="line">                 key expressions: id (type: int)</span><br><span class="line">                 sort order: +</span><br><span class="line">                 Map-reduce partition columns: id (type: int)</span><br><span class="line">                 Statistics: Num rows: 1 Data size: 10 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">                 value expressions: name (type: string)</span><br><span class="line">       Reduce Operator Tree:</span><br><span class="line">         Join Operator</span><br><span class="line">           condition map:</span><br><span class="line">                Left Outer Join0 to 1</span><br><span class="line">           filter predicates:</span><br><span class="line">             0 &#123;(VALUE._col0 = &apos;a&apos;)&#125;</span><br><span class="line">             1</span><br><span class="line">           keys:</span><br><span class="line">             0 id (type: int)</span><br><span class="line">             1 id (type: int)</span><br><span class="line">           outputColumnNames: _col0, _col1, _col6</span><br><span class="line">           Statistics: Num rows: 1 Data size: 30 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">           Select Operator</span><br><span class="line">             expressions: _col0 (type: int), _col1 (type: string), _col6 (type: string)</span><br><span class="line">             outputColumnNames: _col0, _col1, _col2</span><br><span class="line">             Statistics: Num rows: 1 Data size: 30 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">             File Output Operator</span><br><span class="line">               compressed: false</span><br><span class="line">               Statistics: Num rows: 1 Data size: 30 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">               table:</span><br><span class="line">                   input format: org.apache.hadoop.mapred.TextInputFormat</span><br><span class="line">                   output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat</span><br><span class="line">                   serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe</span><br><span class="line">   Stage: Stage-0</span><br><span class="line">     Fetch Operator</span><br><span class="line">       limit: -1</span><br><span class="line">       Processor Tree:</span><br><span class="line">         ListSink</span><br></pre></td></tr></table></figure></p>
+<p> 这四个case介绍了left outer join的情况，right outer join与left类似，只是保留表和Null Supplying table换下位置，比较特殊的是full outer join，在full outer join中join中谓词和join之后谓词都不会被下放，(这里说不会下放可能不太准备，会下放，但是下放的位置不对，下放前和下放后的位置是一样的，开启log可以查看。)</p>
+<p> 因为full outer join中的两个表既是保留表也是Null Supplying table。来看个full outer join的例子，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select t1.*,t2.name as name_t2 from t1 full outer join t2 on (t1.id=t2.id and t2.name=&apos;aa&apos;) where t1.name=&apos;a&apos;;</span><br></pre></td></tr></table></figure></p>
+<p> 其结果为<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1	a	aa</span><br><span class="line">2	a	NULL</span><br><span class="line">3	a	NULL</span><br></pre></td></tr></table></figure></p>
+<p>  其sql的执行计划如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">STAGE PLANS:</span><br><span class="line">   Stage: Stage-1</span><br><span class="line">     Map Reduce</span><br><span class="line">       Map Operator Tree:</span><br><span class="line">           TableScan</span><br><span class="line">             alias: t1</span><br><span class="line">             Statistics: Num rows: 1 Data size: 28 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">             Reduce Output Operator</span><br><span class="line">               key expressions: id (type: int)</span><br><span class="line">               sort order: +</span><br><span class="line">               Map-reduce partition columns: id (type: int)</span><br><span class="line">               Statistics: Num rows: 1 Data size: 28 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">               value expressions: name (type: string)</span><br><span class="line">           TableScan</span><br><span class="line">             alias: t2</span><br><span class="line">             Statistics: Num rows: 1 Data size: 15 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">             Reduce Output Operator</span><br><span class="line">               key expressions: id (type: int)</span><br><span class="line">               sort order: +</span><br><span class="line">               Map-reduce partition columns: id (type: int)</span><br><span class="line">               Statistics: Num rows: 1 Data size: 15 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">               value expressions: name (type: string)</span><br><span class="line">       Reduce Operator Tree:</span><br><span class="line">         Join Operator</span><br><span class="line">           condition map:</span><br><span class="line">                Outer Join 0 to 1</span><br><span class="line">           filter predicates:</span><br><span class="line">             0</span><br><span class="line">             1 &#123;(VALUE._col0 = &apos;aa&apos;)&#125;</span><br><span class="line">           keys:</span><br><span class="line">             0 id (type: int)</span><br><span class="line">             1 id (type: int)</span><br><span class="line">           outputColumnNames: _col0, _col1, _col6</span><br><span class="line">           Statistics: Num rows: 1 Data size: 30 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">           Filter Operator</span><br><span class="line">             predicate: (_col1 = &apos;a&apos;) (type: boolean)</span><br><span class="line">             Statistics: Num rows: 1 Data size: 30 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">             Select Operator</span><br><span class="line">               expressions: _col0 (type: int), &apos;a&apos; (type: string), _col6 (type: string)</span><br><span class="line">               outputColumnNames: _col0, _col1, _col2</span><br><span class="line">               Statistics: Num rows: 1 Data size: 30 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">               File Output Operator</span><br><span class="line">                 compressed: false</span><br><span class="line">                 Statistics: Num rows: 1 Data size: 30 Basic stats: COMPLETE Column stats: NONE</span><br><span class="line">                 table:</span><br><span class="line">                     input format: org.apache.hadoop.mapred.TextInputFormat</span><br><span class="line">                     output format: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat</span><br><span class="line">                     serde: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe</span><br><span class="line">   Stage: Stage-0</span><br><span class="line">     Fetch Operator</span><br><span class="line">       limit: -1</span><br><span class="line">       Processor Tree:</span><br><span class="line">         ListSink</span><br></pre></td></tr></table></figure></p>
+<p>从执行计划中可以看出t1和t2在scan时都没有进行filter过滤，也就是说join中谓词和join之后的谓词都没有进行下放，join中谓词是在Join Operator时通过filter predicates进行过滤join，而join之后谓词是在join之后通过Filter Operator进行过滤的。</p>
+<p>如果t1和t2某个表是分区表，此时想只full outer join某个分区的数据，应该怎么过滤更高效呢？<br>此时应该使用子查询，sql为select t1.*,t2.name as name_t2 from t1 full outer join t2 on (t1.id=t2.id and t2.name=’aa’)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">select t.*,t2.name as name_t2 </span><br><span class="line">  from</span><br><span class="line">     （</span><br><span class="line">       select * </span><br><span class="line">         from t1 </span><br><span class="line">        where day=&apos;20170411&apos;</span><br><span class="line">      ) t</span><br><span class="line">  full outer join  t2</span><br><span class="line">    on t.id=t2.id</span><br></pre></td></tr></table></figure>
+<p>转载：<a href="http://bigdatadecode.club/hive%20outer%20join%20%E4%B9%8B%E8%B0%93%E8%AF%8D%E4%B8%8B%E6%94%BE.html" target="_blank" rel="noopener">hive outer join 之谓词下放</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/hive/" rel="tag"># hive</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/07/互联网数仓基础入门-4-雪花模型与星型模型/" rel="next" title="互联网数仓基础入门-4-雪花模型与星型模型">
+                <i class="fa fa-chevron-left"></i> 互联网数仓基础入门-4-雪花模型与星型模型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/uploads/mycat.jpg" alt="乌拉乌拉儿">
+            
+              <p class="site-author-name" itemprop="name">乌拉乌拉儿</p>
+              <p class="site-description motion-element" itemprop="description">一个学生物的程序猴</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#undefined"><span class="nav-number">1.</span> <span class="nav-text">谓词下放</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#undefined"><span class="nav-number">2.</span> <span class="nav-text">栗子</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#undefined"><span class="nav-number">3.</span> <span class="nav-text">demo1:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#undefined"><span class="nav-number">4.</span> <span class="nav-text">demo2:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#undefined"><span class="nav-number">5.</span> <span class="nav-text">demo3:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#undefined"><span class="nav-number">6.</span> <span class="nav-text">demo4:</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">乌拉乌拉儿</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("meYdfkQuHaeDYBA4DOwETqY3-gzGzoHsz", "yNgiw5ejsfAK7v8KVz7N4kYC");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
