@@ -84,18 +84,21 @@
 
 
 
-<meta name="description" content="按照阿里数仓维度建模模型分层，可以分三层：ODS层，操作数据层，把操作系统的数据几乎无处理的存放在数仓中，主要有以下工作：1.将业务结构化数据增量或全量的同步进来；2.将日志等非结构化的数据结构化处理后落地到数仓中；3.">
+<meta name="description" content="&amp;nbsp;从业中，数仓建模是一个数仓工程师需要的必备的能力，优秀的分层设计能够让整个数据体系更易理解和使用。所以想入行数仓数仓分层是需要补一补的，才能知道分层的意义。  很多人都不理解为什么分层，分层的意义是什么，分层有这么重要吗？是的就是这么重要，说一下我的理解：  1.理清业务数据：随着数据量和业务数据表的不断扩张，需要我们理清数据作用域，就是做什么的，可以清晰的找到数据来源。2.避免重">
 <meta name="keywords" content="数据仓库">
 <meta property="og:type" content="article">
-<meta property="og:title" content="互联数仓基础入门-5-数仓分层">
+<meta property="og:title" content="互联数仓基础入门-5-数仓建模">
 <meta property="og:url" content="http://renwula.github.io/2019/03/04/互联数仓基础入门-5-数仓分层/index.html">
 <meta property="og:site_name" content="任乌拉">
-<meta property="og:description" content="按照阿里数仓维度建模模型分层，可以分三层：ODS层，操作数据层，把操作系统的数据几乎无处理的存放在数仓中，主要有以下工作：1.将业务结构化数据增量或全量的同步进来；2.将日志等非结构化的数据结构化处理后落地到数仓中；3.">
+<meta property="og:description" content="&amp;nbsp;从业中，数仓建模是一个数仓工程师需要的必备的能力，优秀的分层设计能够让整个数据体系更易理解和使用。所以想入行数仓数仓分层是需要补一补的，才能知道分层的意义。  很多人都不理解为什么分层，分层的意义是什么，分层有这么重要吗？是的就是这么重要，说一下我的理解：  1.理清业务数据：随着数据量和业务数据表的不断扩张，需要我们理清数据作用域，就是做什么的，可以清晰的找到数据来源。2.避免重">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-03T13:43:00.679Z">
+<meta property="og:image" content="http://renwula.github.io/images/数仓分层.png">
+<meta property="og:image" content="http://renwula.github.io/images/分层栗子.png">
+<meta property="og:updated_time" content="2019-04-21T15:49:01.371Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="互联数仓基础入门-5-数仓分层">
-<meta name="twitter:description" content="按照阿里数仓维度建模模型分层，可以分三层：ODS层，操作数据层，把操作系统的数据几乎无处理的存放在数仓中，主要有以下工作：1.将业务结构化数据增量或全量的同步进来；2.将日志等非结构化的数据结构化处理后落地到数仓中；3.">
+<meta name="twitter:title" content="互联数仓基础入门-5-数仓建模">
+<meta name="twitter:description" content="&amp;nbsp;从业中，数仓建模是一个数仓工程师需要的必备的能力，优秀的分层设计能够让整个数据体系更易理解和使用。所以想入行数仓数仓分层是需要补一补的，才能知道分层的意义。  很多人都不理解为什么分层，分层的意义是什么，分层有这么重要吗？是的就是这么重要，说一下我的理解：  1.理清业务数据：随着数据量和业务数据表的不断扩张，需要我们理清数据作用域，就是做什么的，可以清晰的找到数据来源。2.避免重">
+<meta name="twitter:image" content="http://renwula.github.io/images/数仓分层.png">
 
 
 
@@ -131,7 +134,7 @@
 
 
 
-  <title>互联数仓基础入门-5-数仓分层 | 任乌拉</title>
+  <title>互联数仓基础入门-5-数仓建模 | 任乌拉</title>
   
 
 
@@ -295,7 +298,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">互联数仓基础入门-5-数仓分层</h1>
+          <h1 class="post-title" itemprop="name headline">互联数仓基础入门-5-数仓建模</h1>
         
 
         <div class="post-meta">
@@ -347,7 +350,7 @@
 
           
           
-             <span id="/2019/03/04/互联数仓基础入门-5-数仓分层/" class="leancloud_visitors" data-flag-title="互联数仓基础入门-5-数仓分层">
+             <span id="/2019/03/04/互联数仓基础入门-5-数仓分层/" class="leancloud_visitors" data-flag-title="互联数仓基础入门-5-数仓建模">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -378,8 +381,24 @@
       
 
       
-        <p>按照阿里数仓维度建模模型分层，可以分三层：<br>ODS层，操作数据层，把操作系统的数据几乎无处理的存放在数仓中，主要有以下工作：<br>1.将业务结构化数据增量或全量的同步进来；<br>2.将日志等非结构化的数据结构化处理后落地到数仓中；<br>3.</p>
-
+        <p>  &nbsp;从业中，数仓建模是一个数仓工程师需要的必备的能力，优秀的分层设计能够让整个数据体系更易理解和使用。所以想入行数仓数仓分层是需要补一补的，才能知道分层的意义。<br>  很多人都不理解为什么分层，分层的意义是什么，分层有这么重要吗？是的就是这么重要，说一下我的理解：</p>
+<blockquote>
+<p>1.理清业务数据：随着数据量和业务数据表的不断扩张，需要我们理清数据作用域，就是做什么的，可以清晰的找到数据来源。<br><br>2.避免重复计算：为了避免多次计算，多次关联多张表，分层可以保存中间结果，减小开发成本。<br><br>3.增加数据使用便捷性：仓库层的设计，让数据能分析，好分析，能支持大部分的数据需求。<br><br>4.避免数据分歧：统一数据口径，保证数据质量，避免出现统一指标多种概念。<br></p>
+</blockquote>
+<p>比较通用的简单的维度建模分层，分为三层：<br><img src="/images/数仓分层.png" alt="数仓分层"></p>
+<h4 id="一、ODS层，操作数据层"><a href="#一、ODS层，操作数据层" class="headerlink" title="一、ODS层，操作数据层"></a>一、ODS层，操作数据层</h4><p>&nbsp;把操作系统的数据几乎无处理的存放在数仓中，主要有以下工作：<br>1.将业务结构化数据增量或全量的同步进来；<br>2.将日志等非结构化的数据结构化处理后落地到数仓中；<br>3.累计历史数据，根据数据业务需求、审计等要求保存历史数据、清洗数据，保留的数据快照也便于回溯问题。</p>
+<h4 id="二、CDM层，公共维度模型层"><a href="#二、CDM层，公共维度模型层" class="headerlink" title="二、CDM层，公共维度模型层"></a>二、CDM层，公共维度模型层</h4><p>&nbsp;存放明细事实数据、维度数据及公共指标汇总数据，统一口径，保持数据一致性，减少数据重复计算，CDM层分为DWD层和DWS层。</p>
+<h5 id="1-DWD层-明细数据层"><a href="#1-DWD层-明细数据层" class="headerlink" title="1.DWD层,明细数据层"></a>1.DWD层,明细数据层</h5><p>&nbsp;dwd层对业务数据进行清洗、规范化，例如去除作弊数据，对数据字段进行规范命名从而避免歧义化等，另外可采用维度退化手段，将维度退化到事实表中，减少事实表与维度表的关联，提高明细表的易用性。</p>
+<h5 id="2-DWS层-汇总数据层"><a href="#2-DWS层-汇总数据层" class="headerlink" title="2.DWS层,汇总数据层"></a>2.DWS层,汇总数据层</h5><p>&nbsp;dws层，加强指标的维度退化，采用更多的宽表化的手段构建公共指标数据层，提升公共指标的复用性，减少重复加工。</p>
+<h4 id="三、ADS层，应用数据层"><a href="#三、ADS层，应用数据层" class="headerlink" title="三、ADS层，应用数据层"></a>三、ADS层，应用数据层</h4><p>&nbsp;ads层存放数据进行个性化的指标计算，不共用性、复杂性（指数型、比值型、排名型）等，会基于应用数据组装，像大宽表集市、横标转纵表、趋势指标串等，另外由于ADS某些指标具有个性化的特点，尽量不对外提供服务。</p>
+<h3 id="举个例子"><a href="#举个例子" class="headerlink" title="举个例子"></a>举个例子</h3><p><img src="/images/分层栗子.png" alt="分层栗子"> </p>
+<h5 id="1-ods层会将各种日志数据及业务库中数据或者其他一些数据，进行数据落地。"><a href="#1-ods层会将各种日志数据及业务库中数据或者其他一些数据，进行数据落地。" class="headerlink" title="1.ods层会将各种日志数据及业务库中数据或者其他一些数据，进行数据落地。"></a>1.ods层会将各种日志数据及业务库中数据或者其他一些数据，进行数据落地。<br></h5><h5 id="2-dwd层，像用户登录表，会做以下一些操作"><a href="#2-dwd层，像用户登录表，会做以下一些操作" class="headerlink" title="2.dwd层，像用户登录表，会做以下一些操作"></a>2.dwd层，像用户登录表，会做以下一些操作<br></h5><blockquote>
+<p>2.1去除爬虫等异常数据，保持数据质量<br>2.2规范统一数据字段<br>2.3拆解需拆解的字段<br>2.4融合各端数据</p>
+</blockquote>
+<h5 id="3-dws层，像用户主题表，会做以下一些操作"><a href="#3-dws层，像用户主题表，会做以下一些操作" class="headerlink" title="3.dws层，像用户主题表，会做以下一些操作"></a>3.dws层，像用户主题表，会做以下一些操作<br></h5><blockquote>
+<p>3.1统计操作轨迹用户数数据<br>3.2统计用户购买商品数，登录次数，订单数，退货数，<br>3.3增加用户维度，时间维度</p>
+</blockquote>
+<h5 id="4-ads层，像用户转化漏斗，可以利用dws层数据进行维度分析，分析漏斗，为产品做决策"><a href="#4-ads层，像用户转化漏斗，可以利用dws层数据进行维度分析，分析漏斗，为产品做决策" class="headerlink" title="4.ads层，像用户转化漏斗，可以利用dws层数据进行维度分析，分析漏斗，为产品做决策"></a>4.ads层，像用户转化漏斗，可以利用dws层数据进行维度分析，分析漏斗，为产品做决策</h5>
       
     </div>
     
@@ -469,8 +488,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
             
@@ -532,6 +560,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、ODS层，操作数据层"><span class="nav-number">1.</span> <span class="nav-text">一、ODS层，操作数据层</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、CDM层，公共维度模型层"><span class="nav-number">2.</span> <span class="nav-text">二、CDM层，公共维度模型层</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-DWD层-明细数据层"><span class="nav-number">2.1.</span> <span class="nav-text">1.DWD层,明细数据层</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-DWS层-汇总数据层"><span class="nav-number">2.2.</span> <span class="nav-text">2.DWS层,汇总数据层</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、ADS层，应用数据层"><span class="nav-number">3.</span> <span class="nav-text">三、ADS层，应用数据层</span></a></li></ol><li class="nav-item nav-level-3"><a class="nav-link" href="#举个例子"><span class="nav-number"></span> <span class="nav-text">举个例子</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-ods层会将各种日志数据及业务库中数据或者其他一些数据，进行数据落地。"><span class="nav-number">0.1.</span> <span class="nav-text">1.ods层会将各种日志数据及业务库中数据或者其他一些数据，进行数据落地。</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-dwd层，像用户登录表，会做以下一些操作"><span class="nav-number">0.2.</span> <span class="nav-text">2.dwd层，像用户登录表，会做以下一些操作</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-dws层，像用户主题表，会做以下一些操作"><span class="nav-number">0.3.</span> <span class="nav-text">3.dws层，像用户主题表，会做以下一些操作</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-ads层，像用户转化漏斗，可以利用dws层数据进行维度分析，分析漏斗，为产品做决策"><span class="nav-number">0.4.</span> <span class="nav-text">4.ads层，像用户转化漏斗，可以利用dws层数据进行维度分析，分析漏斗，为产品做决策</span></a></li></ol></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
